@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "strict": true,
+
+    "target": "es2023",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+
+    "rootDir": "./src",
+    "outDir": "./build",
+
+    "ignoreDeprecations": "6.0",
+    "baseUrl": "./src",
+    "paths": {
+      "#config/*": ["config/*"],
+      "#shared/*": ["shared/*"],
+      "#modules/*": ["modules/*"],
+      "#router/*": ["router/*"],
+      "#prisma/*": ["generated/prisma/*"]
+    }
+  },
+  "include": ["src", "src/lib"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}
