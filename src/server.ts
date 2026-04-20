@@ -16,7 +16,7 @@ async function bootstrap() {
 const PORT = env.PORT;
 const URL = env.APP_URL;
 const server = app.listen(process.env.PORT, () => {
-  console.log(`Server is running on port ${PORT} ${URL}`);
+  console.log(`Server rodando: Porta: ${PORT} URL: ${URL}`);
 });
 
 const shutdown = async (signal: string) => {
