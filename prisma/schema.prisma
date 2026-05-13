@@ -1,10 +1,65 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id                 String               @id @default(uuid())
+  name               String
+  email              String               @unique
+  passwordHash       String               @map("password_hash")
+  role               Role                 @default(CUSTOMER)
+  isActive           Boolean              @default(true) @map("is_active")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  addresses          Address[]
+  passwordResetToken PasswordResetToken[]
+  refreshTokens      RefreshToken[]
+
+  @@map("users")
+}
+
+model Address {
+  id         String  @id @default(uuid())
+  userId     String  @map("user_id")
+  label      String
+  street     String
+  number     String
+  complement String?
+  district   String
+  city       String
+  state      String
+  zipCode    String  @map("zip_code")
+  isDefault  Boolean @default(false) @map("is_default")
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("addresses")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  token     String    @unique
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
 }
 
 enum Role {
@@ -20,66 +75,4 @@ enum OrderStatus {
   DELIVERED
   CANCELLED
   REFUNDED
-}
-
-// ─── User ─────────────────────────────────────────────────────
-model User {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  role         Role     @default(CUSTOMER)
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  addresses    Address[]
-  refreshTokens RefreshToken[]
-  passwordResetToken  PasswordResetToken[]
-
-
-  @@map("users")
-}
-
-model Address {
-  id         String  @id @default(uuid())
-  userId     String  @map("user_id")
-  label      String  // ex: "Casa", "Trabalho"
-  street     String
-  number     String
-  complement String?
-  district   String
-  city       String
-  state      String
-  zipCode    String  @map("zip_code")
-  isDefault  Boolean @default(false) @map("is_default")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("addresses")
-}
-
-model RefreshToken {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  token     String   @unique
-  expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("refresh_tokens")
-}
-
-model PasswordResetToken {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  token     String   @unique
-  expiresAt DateTime @map("expires_at")
-  usedAt    DateTime? @map("used_at")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("password_reset_tokens")
 }

@@ -8,7 +8,6 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   APP_URL: z.string().default('http://localhost:3000'),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL é obrigatória'),
-  REDIS_URL: z.string().min(1, 'REDIS_URL é obrigatória'),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET deve ter pelo menos 32 caracteres'),
   JWT_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_SECRET: z.string().min(32),

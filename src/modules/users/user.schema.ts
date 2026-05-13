@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const updateProfileSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100).trim().optional(),
+  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100).trim(),
 });
 
 export const changePasswordSchema = z
@@ -11,7 +11,7 @@ export const changePasswordSchema = z
       .string()
       .min(8)
       .regex(/[A-Z]/, 'Nova senha deve conter letra maiúscula')
-      .regex(/[0-9]/, 'Nova senha deve conter número')
+      .regex(/^(?=.*\d)$/, 'Nova senha deve conter número')
       .regex(/[^a-zA-Z0-9]/, 'Nova senha deve conter caractere especial'),
     confirmPassword: z.string(),
   })
@@ -34,4 +34,4 @@ export const addressSchema = z.object({
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
-export type AnddressInput = z.infer<typeof addressSchema>;
+export type AddressInput = z.infer<typeof addressSchema>;

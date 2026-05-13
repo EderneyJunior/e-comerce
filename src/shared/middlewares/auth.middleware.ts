@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '#shared/utils/token';
-import { Role } from '#prisma/client';
+import { Role } from '@prisma/client';
+import { UnauthorizedError, ForbiddenError } from '#shared/errors/appError';
 
 declare global {
   namespace Express {
@@ -17,7 +18,7 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith('Bearer ')) {
-    return next({ status: 401, message: 'Token de autenticação ausente ou mal formatado' });
+    return next(new UnauthorizedError('Token de autenticação Não fornecido'));
   }
 
   const token = authHeader.split(' ')[1];
@@ -31,18 +32,18 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
 
     next();
   } catch {
-    next({ status: 401, message: 'Token de autenticação inválido ou expirado' });
+    next(new UnauthorizedError('Token de autenticação inválido ou expirado'));
   }
 }
 
 export function authorize(...roles: Role[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return next({ status: 401, message: 'Usuário não autenticado' });
+      return next(new UnauthorizedError('Usuário não autenticado'));
     }
 
     if (!roles.includes(req.user.role as Role)) {
-      return next({ status: 403, message: 'Usuário não autorizado para acessar este recurso' });
+      return next(new ForbiddenError('Usuário não tem permissão para acessar este recurso'));
     }
 
     next();
