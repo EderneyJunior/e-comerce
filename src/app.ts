@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import { errorMiddleware } from '#shared/middlewares/error.middleware.js';
 import router from '#router/router.js';
 import { env } from '#config/env.js';
+import path from 'path';
 
 const app = express();
 app.use(helmet());
@@ -19,6 +20,7 @@ app.use(
 );
 app.use(morgan('combined'));
 app.use(express.json());
+app.use('/uploads', express.static(path.resolve('uploads')));
 
 app.use(router);
 

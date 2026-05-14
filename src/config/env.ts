@@ -12,6 +12,12 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_SECRET: z.string().min(32),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
+  STORAGE_TYPE: z.enum(['local', 's3']).default('local'),
+  UPLOAD_DIR: z.string().default('uploads'),
+  AWS_ACCESS_KEY_ID: z.string().optional(),
+  AWS_SECRET_ACCESS_KEY: z.string().optional(),
+  AWS_REGION: z.string().default('us-east-1'),
+  AWS_S3_BUCKET: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

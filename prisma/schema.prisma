@@ -76,3 +76,132 @@ enum OrderStatus {
   CANCELLED
   REFUNDED
 }
+
+model Category {
+  id          String     @id @default(uuid())
+  name        String
+  slug        String     @unique
+  description String?
+  imageUrl    String?    @map("image_url")
+  parentId    String?    @map("parent_id")
+  isActive    Boolean    @default(true) @map("is_active")
+  sortOrder   Int        @default(0) @map("sort_order")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+  products    ProductCategory[]
+
+  @@map("categories")
+}
+
+model Product {
+  id            String        @id @default(uuid())
+  name          String
+  slug          String        @unique
+  description   String?
+  basePrice     Decimal       @map("base_price") @db.Decimal(10, 2)
+  discountPrice Decimal?      @map("discount_price") @db.Decimal(10, 2)
+  sku           String?       @unique
+  brand         String?
+  isActive      Boolean       @default(false) @map("is_active")
+  isFeatured    Boolean       @default(false) @map("is_featured")
+  avgRating     Float         @default(0) @map("avg_rating")
+  reviewCount   Int           @default(0) @map("review_count")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  deletedAt     DateTime?     @map("deleted_at")
+
+  categories    ProductCategory[]
+  images        ProductImage[]
+  variants      ProductVariant[]
+  attributes    ProductAttribute[]
+
+  @@map("products")
+  @@index([isActive, deletedAt])
+  @@index([slug])
+  @@index([basePrice])
+  @@index([avgRating])
+  @@index([createdAt])
+}
+
+model ProductCategory {
+  productId  String @map("product_id")
+  categoryId String @map("category_id")
+
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@map("product_categories")
+}
+
+model ProductImage {
+  id         String   @id @default(uuid())
+  productId  String   @map("product_id")
+  url        String
+  altText    String?  @map("alt_text")
+  isCover    Boolean  @default(false) @map("is_cover")
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+model ProductAttribute {
+  id        String  @id @default(uuid())
+  productId String  @map("product_id")
+  name      String
+  value     String 
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_attributes")
+}
+
+model ProductVariant {
+  id           String    @id @default(uuid())
+  productId    String    @map("product_id")
+  name         String
+  sku          String    @unique
+  price        Decimal?  @db.Decimal(10, 2)
+  stock        Int       @default(0)
+  stockMin     Int       @default(5) @map("stock_min")
+  weight       Float?
+  isActive     Boolean   @default(true) @map("is_active")
+  attributes   Json
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  product      Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  stockMovements StockMovement[]
+
+  @@map("product_variants")
+  @@index([productId, isActive])
+  @@index([stock])
+}
+
+enum StockMovementType {
+  IN
+  OUT
+  ADJUSTMENT
+}
+
+model StockMovement {
+  id        String             @id @default(uuid())
+  variantId String             @map("variant_id")
+  type      StockMovementType
+  quantity  Int
+  reason    String?
+  createdAt DateTime           @default(now()) @map("created_at")
+  createdBy String?            @map("created_by")
+
+  variant   ProductVariant     @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@map("stock_movements")
+}
+
+

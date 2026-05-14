@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["node", "multer"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
