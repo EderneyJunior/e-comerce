@@ -5,6 +5,7 @@ export const registerSchema = z.object({
     .string()
     .min(2, 'Nome deve ter pelo menos 2  caracteres')
     .max(100, 'Nome deve ter no maximo 100 caracteres')
+    .trim()
     .nonempty('Nome é obrigatório'),
 
   email: z.email('E-mail inválido').toLowerCase().trim().nonempty('E-mail é obrigatório'),
@@ -27,7 +28,7 @@ export const refreshtTokenSchema = z.object({
 });
 
 export const forgotPasswordSchema = z.object({
-  email: z.email('E-mail inválido').toLowerCase().nonempty('E-mail é obrigatório'),
+  email: z.email('E-mail inválido').toLowerCase().trim().nonempty('E-mail é obrigatório'),
 });
 
 export const resetPasswordSchema = z.object({
