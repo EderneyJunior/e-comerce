@@ -1,4 +1,4 @@
-import { S3Client, DeleteObjectCommand, PutObjectCommand, Bucket$ } from '@aws-sdk/client-s3';
+import { S3Client, DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import sharp from 'sharp';
