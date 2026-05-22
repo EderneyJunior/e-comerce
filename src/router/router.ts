@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { authRouter } from '#modules/auth/auth.routes';
 import { userRouter } from '#modules/users/user.routes';
+import { productRouter } from '#modules/products/product.routes';
 import swaggerui from 'swagger-ui-express';
 import { swaggerSpec } from '#config/swagger.js';
 
@@ -12,6 +13,7 @@ router.get('/ping', (req: Request, res: Response) => {
 
 router.use('/api/v1/auth', authRouter);
 router.use('/api/v1/users', userRouter);
+router.use('/api/v1', productRouter);
 
 router.use('/api/docs', swaggerui.serve, swaggerui.setup(swaggerSpec));
 
