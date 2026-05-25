@@ -4,6 +4,8 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
+    pool: 'forks',
+    maxWorkers: 1,
     globals: true,
     environment: 'node',
     setupFiles: [],

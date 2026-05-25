@@ -10,35 +10,38 @@ export const createCategorySchema = z.object({
 
 export const UpdateCategorySchema = createCategorySchema.partial();
 
-export const createProductSchema = z
-  .object({
-    name: z.string().min(3, 'O nome deve conter pelo menos 3 caracteres').max(200).trim(),
-    description: z.string().max(5000).optional(),
-    basePrice: z.coerce
-      .number({ error: 'O preço é obrigatório' })
-      .positive('O preço deve ser um número positivo')
-      .multipleOf(0.01),
-    discountPrice: z.coerce.number().positive().multipleOf(0.01).optional().nullable(),
-    sku: z.string().max(100).optional(),
-    brand: z.string().max(100).optional(),
-    categoryIds: z.array(z.uuid()).min(1, 'Selecione pelo menos uma categoria'),
-    isFeatured: z.boolean().default(false),
-    attributes: z
-      .array(
-        z.object({
-          name: z.string().min(1).max(100).trim(),
-          value: z.string().min(1).max(200).trim(),
-        }),
-      )
-      .optional()
-      .default([]),
-  })
-  .refine((data) => !data.discountPrice || data.discountPrice < data.basePrice, {
+const createProductBaseSchema = z.object({
+  name: z.string().min(3, 'O nome deve conter pelo menos 3 caracteres').max(200).trim(),
+  description: z.string().max(5000).optional(),
+  basePrice: z.coerce
+    .number({ error: 'O preço é obrigatório' })
+    .positive('O preço deve ser um número positivo')
+    .multipleOf(0.01),
+  discountPrice: z.coerce.number().positive().multipleOf(0.01).optional().nullable(),
+  sku: z.string().max(100).optional(),
+  brand: z.string().max(100).optional(),
+  categoryIds: z.array(z.uuid()).min(1, 'Selecione pelo menos uma categoria'),
+  isFeatured: z.boolean().default(false),
+  attributes: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(100).trim(),
+        value: z.string().min(1).max(200).trim(),
+      }),
+    )
+    .optional()
+    .default([]),
+});
+
+export const createProductSchema = createProductBaseSchema.refine(
+  (data) => !data.discountPrice || data.discountPrice < data.basePrice,
+  {
     message: 'Preço com desconto deve ser menor que o preço base',
     path: ['discountPrice'],
-  });
+  },
+);
 
-export const updateProductSchema = createProductSchema.partial();
+export const updateProductSchema = createProductBaseSchema.partial();
 
 export const createVariantSchema = z.object({
   name: z.string().min(1).max(100).trim(),

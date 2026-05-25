@@ -27,14 +27,14 @@ adminProduct.use(authenticate, authorize(Role.ADMIN));
 
 adminProduct.post('/', productController.create);
 adminProduct.put('/:id', productController.update);
-adminProduct.patch('/:id/toggle-status', productController.toggleStatus);
+adminProduct.patch('/:id/status', productController.toggleStatus);
 adminProduct.delete('/:id', productController.destroy);
 
 adminProduct.post('/:id/images', uploadMiddleware.single('image'), productController.uploadImage);
 adminProduct.delete('/:productId/images/:imageId', productController.deleteImage);
 adminProduct.patch('/:productId/images/:imageId/cover', productController.setCoverImage);
 
-adminProduct.post('/:id/variants', productController.addVariant);
+adminProduct.post('/:productId/variants', productController.addVariant);
 adminProduct.put('/:productId/variants/:variantId', productController.updateVariant);
 adminProduct.patch('/:productId/variants/:variantId/stock', productController.adjustStock);
 

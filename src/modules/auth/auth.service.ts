@@ -50,7 +50,6 @@ export class AuthService {
 
   async login(data: LoginInput) {
     const user = await prisma.user.findUnique({ where: { email: data.email } });
-    console.log(user);
     if (!user) {
       throw new UnauthorizedError('E-mail ou senha inválidos');
     }
@@ -177,6 +176,11 @@ export class AuthService {
     const refreshToken = generateRefreshToken(userId, role);
 
     const expiresAt = addDays(new Date(), REFRESH_TOKEN_TTL_DAYS);
+
+    const userExists = await prisma.user.findUnique({ where: { id: userId } });
+    if (!userExists) {
+      throw new AppError('Usuário não encontrado para criar token', 400);
+    }
 
     await prisma.refreshToken.create({
       data: {
