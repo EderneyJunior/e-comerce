@@ -269,7 +269,6 @@ export class CartService {
 
   private formatCartResponse(cart: any) {
     const items = cart.items
-      // Remove itens de produtos inativos
       .filter((item: any) => item.variant?.product?.isActive)
       .map((item: any) => {
         const unitPrice = Number(

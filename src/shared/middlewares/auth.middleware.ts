@@ -49,3 +49,21 @@ export function authorize(...roles: Role[]) {
     next();
   };
 }
+
+export function optionalAuth(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader?.startsWith('Bearer ')) {
+    return next();
+  }
+
+  const token = authHeader!.split(' ')[1];
+
+  try {
+    const payload = verifyToken(token);
+    req.user = {
+      id: payload.sub,
+      role: payload.role as Role,
+    };
+  } catch {}
+}
