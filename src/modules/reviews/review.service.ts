@@ -3,7 +3,7 @@ import { NotFoundError, ConflictError, AppError } from '#shared/errors/appError'
 
 interface CreateReviewInput {
   rating: number;
-  title: string;
+  title?: string;
   body?: string;
 }
 

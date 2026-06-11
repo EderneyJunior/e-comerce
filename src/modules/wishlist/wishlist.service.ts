@@ -64,6 +64,7 @@ export class WishlistService {
     if (existing) throw new ConflictError('Produto já está na lista de favoritos');
 
     await prisma.wishlist.create({ data: { userId, productId } });
+    return { productId, message: 'Adicionado aos favoritos' };
   }
 
   async remove(userId: string, productId: string) {
