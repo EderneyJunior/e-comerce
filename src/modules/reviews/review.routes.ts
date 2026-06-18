@@ -8,7 +8,7 @@ const router = Router();
 const createReviewSchema = z.object({
   rating: z.coerce.number().int().min(1).max(5),
   title: z.string().max(100).optional(),
-  body: z.string().min(2000).optional(),
+  body: z.string().max(2000).optional(),
 });
 
 const paginationSchema = z.object({
@@ -36,7 +36,7 @@ router.post(
       const { id } = req.user!;
       const data = createReviewSchema.parse(req.body);
       const review = await reviewService.create(String(slug), id, data);
-      res.status(204).json({ status: 'success', data: review });
+      res.status(201).json({ status: 'success', data: review });
     } catch (error) {
       next(error);
     }

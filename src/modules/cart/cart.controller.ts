@@ -90,11 +90,12 @@ export class CartController {
   async calculateShipping(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      const { zipCode } = shippingSchema.parse(req.query);
+      const { zipCode } = shippingSchema.parse(req.body);
       const cart = await cartService.getCart(userId, getSessionId(req));
 
       const totalWeight = (cart as any).items.reduce(
         (acc: number, item: any) => acc + (item.variant?.weight ?? 0.3) * item.quantity,
+        0,
       );
       const subTotal = (cart as any).totals?.subTotal ?? 0;
       const options = await calculateShipping(zipCode, totalWeight, subTotal);

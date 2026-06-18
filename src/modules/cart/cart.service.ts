@@ -176,7 +176,17 @@ export class CartService {
   async applyCoupon(code: string, userId?: string) {
     const cart = await prisma.cart.findUnique({
       where: { userId },
-      include: { items: { include: { variant: true } } },
+      include: {
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        },
+      },
     });
     if (!cart || cart.items.length === 0)
       throw new NotFoundError('Carrinho não encontrado ou vazio');
@@ -236,14 +246,14 @@ export class CartService {
     if (userId) {
       return prisma.cart.findUnique({
         where: { userId },
-        include: { items: { include: cartInclude }, counpon: true },
+        include: { items: { include: cartInclude }, coupon: true },
       });
     }
 
     if (sessionId) {
       return prisma.cart.findUnique({
         where: { sessionId },
-        include: { items: { include: cartInclude }, counpon: true },
+        include: { items: { include: cartInclude }, coupon: true },
       });
     }
 

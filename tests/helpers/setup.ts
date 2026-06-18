@@ -8,6 +8,13 @@ const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 export async function cleanDatabase() {
+  await prisma.reviewHelpful.deleteMany();
+  await prisma.review.deleteMany();
+  await prisma.wishlist.deleteMany();
+  await prisma.cartItem.deleteMany();
+  await prisma.cart.deleteMany();
+  await prisma.orderCoupon.deleteMany();
+  await prisma.coupon.deleteMany();
   await prisma.stockMovement.deleteMany();
   await prisma.productVariant.deleteMany();
   await prisma.productImage.deleteMany();

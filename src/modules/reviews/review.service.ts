@@ -64,14 +64,14 @@ export class ReviewService {
     });
     if (existing) throw new ConflictError('Usuário já avaliou este produto');
 
-    // const verified = await prisma.orderItem
-    //   ?.findFirst({
-    //     where: {
-    //       order: { userId, status: { in: ['DELIVERED', 'SHIPPED'] } },
-    //       variant: { productId: product.id },
-    //     },
-    //   } as any)
-    //   .catch(() => null);
+    const verified = await prisma.orderItem
+      ?.findFirst({
+        where: {
+          order: { userId, status: { in: ['DELIVERED', 'SHIPPED'] } },
+          variant: { productId: product.id },
+        },
+      } as any)
+      .catch(() => null);
 
     const review = await prisma.review.create({
       data: {
@@ -80,7 +80,7 @@ export class ReviewService {
         rating: input.rating,
         title: input.title,
         body: input.body,
-        isVerified: undefined, //!verified,
+        isVerified: !verified,
       },
       include: { user: { select: { id: true, name: true } } },
     });

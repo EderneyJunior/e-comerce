@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, Role } from '@prisma/client';
+import { DiscountType, PrismaClient, Role } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const connectionString = `${process.env.DATABASE_URL}`;
@@ -78,6 +78,43 @@ async function seedProducts() {
   }
 }
 
+async function seedCoupons() {
+  const coupons = [
+    {
+      code: 'BEMVINDO',
+      description: '10% de desconto na primeira compra',
+      discountType: 'PERCENTAGE' as const,
+      discountValue: 10,
+      minOrderValue: 100,
+      maxUsage: 1,
+    },
+    {
+      code: 'FRETE0',
+      description: 'Frete grátis em qualuer compra acima de R$ 50',
+      discountType: 'FREE_SHIPPING' as const,
+      discountValue: 0,
+      minOrderValue: 50,
+    },
+    {
+      code: 'DESC50',
+      description: 'R$ 50 de desconto em compras acima de R$ 300',
+      discountType: 'FIXED' as const,
+      discountValue: 50,
+      minOrderValue: 300,
+    },
+  ];
+
+  for (const coupon of coupons) {
+    await prisma.coupon.upsert({
+      where: { code: coupon.code },
+      update: {},
+      create: coupon,
+    });
+  }
+
+  console.log('Cupons criados: ', coupons.map((c) => c.code).join(', '));
+}
+
 async function main() {
   console.log('Iniciando seed...');
 
@@ -99,6 +136,7 @@ async function main() {
     console.log('Admin já existe, pulando...');
   }
   await seedProducts();
+  await seedCoupons();
 }
 
 main()

@@ -27,7 +27,7 @@ router.post('/:productId', async (req: Request, res: Response, next: NextFunctio
     const { productId } = req.params;
     const { id } = req.user!;
     const result = await wishlistService.add(id, String(productId));
-    return res.status(204).json({ status: 'sucess', ...result });
+    res.status(201).json({ status: 'sucess', ...result });
   } catch (error) {
     next(error);
   }
@@ -38,6 +38,7 @@ router.delete('/:productId', async (req: Request, res: Response, next: NextFunct
     const { productId } = req.params;
     const { id } = req.user!;
     await wishlistService.remove(id, String(productId));
+    res.status(200).send();
   } catch (error) {
     next(error);
   }

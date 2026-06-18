@@ -53,11 +53,11 @@ export function authorize(...roles: Role[]) {
 export function optionalAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
 
-  if (authHeader?.startsWith('Bearer ')) {
+  if (!authHeader?.startsWith('Bearer ')) {
     return next();
   }
 
-  const token = authHeader!.split(' ')[1];
+  const token = authHeader.split(' ')[1];
 
   try {
     const payload = verifyToken(token);
@@ -66,4 +66,6 @@ export function optionalAuth(req: Request, res: Response, next: NextFunction) {
       role: payload.role as Role,
     };
   } catch {}
+
+  next();
 }

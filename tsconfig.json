@@ -11,7 +11,7 @@
     "moduleResolution": "bundler",
 
     "rootDir": "./src",
-    "outDir": "./build",
+    "outDir": "./dist",
 
     "ignoreDeprecations": "6.0",
     "baseUrl": "./src",

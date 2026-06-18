@@ -8,7 +8,7 @@ export interface ShippingOptions {
 }
 
 export interface CartTotals {
-  subTotal: number;
+  subtotal: number;
   discount: number;
   shipping: number;
   total: number;
@@ -70,10 +70,10 @@ export function calculateTotals(
   const total = Math.max(0, subTotal - discountAmount + effectiveShipping);
 
   return {
-    subTotal: Number.parseFloat(subTotal.toFixed()),
-    discount: Number.parseFloat(discountAmount.toFixed()),
-    shipping: Number.parseFloat(effectiveShipping.toFixed()),
-    total: Number.parseFloat(total.toFixed()),
+    subtotal: Number.parseFloat(subTotal.toFixed(2)),
+    discount: Number.parseFloat(discountAmount.toFixed(2)),
+    shipping: Number.parseFloat(effectiveShipping.toFixed(2)),
+    total: Number.parseFloat(total.toFixed(2)),
     freeShipping,
   };
 }

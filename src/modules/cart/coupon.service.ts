@@ -35,15 +35,15 @@ export async function validateAndCalculateCoupon(
 
   const minOrder = coupon.minOrderValue ? Number(coupon.minOrderValue) : null;
   if (minOrder !== null && subTotal < minOrder) {
-    throw new AppError(`Valor minimo para este cupon: ${minOrder.toFixed(2)}`, 4000);
+    throw new AppError(`Valor minimo para este cupon: ${minOrder.toFixed(2)}`, 400);
   }
 
-  if (userId) {
+  if (userId && coupon.maxUsage !== null) {
     const userUsageCount = await prisma.orderCoupon.count({
       where: {
         couponId: coupon.id,
         order: { userId },
-      } as any,
+      },
     });
 
     if (userUsageCount >= coupon.maxUsagePerUser!) {
