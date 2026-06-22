@@ -23,6 +23,12 @@ const envSchema = z.object({
   SHIPPING_FREE_ABOVE: z.coerce.number().default(299),
   SHIPPING_BASE_RATE: z.coerce.number().default(15),
   SHIPPING_RATE_PER_KG: z.coerce.number().default(3.5),
+  STRIPE_SECRET_KEY: z.string().min(1, 'STRIPE_SECRET_KEY é obrigatória'),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1, 'STRIPE_WEBHOOK_SECRET é obrigatória'),
+  STRIPE_CURRENCY: z.string().default('brl'),
+  MP_ACCESS_TOKEN: z.string().min(1, 'MP_ACCESS_TOKEN é obrigatória'),
+  MP_WEBHOOK_SECRET: z.string().optional(),
+  ORDER_PAYMENT_TIMEOUT_MINUTES: z.coerce.number().default(30),
 });
 
 const parsed = envSchema.safeParse(process.env);
