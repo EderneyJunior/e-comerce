@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: e-commerce
+      POSTGRES_DB: e_commerce
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -29,14 +29,14 @@ services:
       - '3000:3000'
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgresql://postgres:123456@postgres:5432/e-commerce
+      DATABASE_URL: postgresql://postgres:123456@postgres:5432/e_commerce
     volumes:
       - .:/app
       - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
-    command: npm run dev
+    command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run dev"
 
 volumes:
   postgres_data:
