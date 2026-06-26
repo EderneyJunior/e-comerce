@@ -16,7 +16,6 @@ const REFRESH_TOKEN_TTL_DAYS = 7;
 const RESET_TOKEN_TTL_MINUTES = 30;
 export class AuthService {
   async register(data: RegisterInput) {
-    console.log('Register');
     const exists = await prisma.user.findUnique({ where: { email: data.email } });
     if (exists) {
       throw new ConflictError('E-mail já registrado');

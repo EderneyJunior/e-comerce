@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import app from 'app.js';
+import app from './app.js';
 import { prisma } from '#config/prisma';
 import { logger } from '#shared/utils/logger';
 import { startCleanupJob } from '#shared/utils/cleanup.job';
