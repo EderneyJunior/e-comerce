@@ -3,12 +3,14 @@ import app from './app.js';
 import { prisma } from '#config/prisma';
 import { logger } from '#shared/utils/logger';
 import { startCleanupJob } from '#shared/utils/cleanup.job';
+import { startOrderExpirationJob } from '#shared/utils/order-experation.job';
 import { env } from '#config/env';
 
 async function bootstrap() {
   try {
     await prisma.$connect();
     startCleanupJob();
+    startOrderExpirationJob();
     logger.info('PostgreSQL conectado com sucesso');
   } catch (err) {
     logger.error('Falha ao conectar no PostgreSQL', err);

@@ -198,6 +198,77 @@ export class OrderService {
     return order;
   }
 
+  async cancelOrder(orderId: string, userId: string, reason: string) {
+    const order = await prisma.order.findFirst({
+      where: { id: orderId, userId },
+    });
+    if (!order) throw new NotFoundError('Pedido não encontrado');
+
+    if (!CANCELLABLE_STATUSES.includes(order.status))
+      throw new ForbiddenError(`Pedidoscom status "${order.status} não podem mais ser cancelados"`);
+
+    return this.cancelInternal(orderId, reason ?? 'Cancelado pelo cliente', userId);
+  }
+
+  async updateStatus(orderId: string, data: UpdateOrderStatusInput, adminId: string) {
+    const order = await prisma.order.findFirst({ where: { id: orderId } });
+    if (!order) throw new NotFoundError('Pedido não encontrado');
+
+    const allowed = VALID_TRANSATIONS[order.status];
+    if (!allowed.includes(data.status))
+      throw new AppError(`Não é possivel mudar de  "${order.status}" para "${data.status}"`, 400);
+
+    if (data.status === 'CANCELLED')
+      return this.cancelInternal(orderId, data.note ?? 'Cancelado pelo administrador', adminId);
+
+    return prisma.$transaction(async (tx) => {
+      const updated = await tx.order.update({
+        where: { id: orderId },
+        data: { status: data.status },
+      });
+
+      await tx.orderStatusHistory.create({
+        data: { orderId, status: data.status, node: data.note, changedBy: adminId },
+      });
+
+      return updated;
+    });
+  }
+
+  async listAllOrders(filters: OrderFilterInput) {
+    const { limit, page, status } = filters;
+    const skip = (page - 1) * limit;
+    const where: Prisma.OrderWhereInput = status ? { status } : {};
+
+    const [orders, total] = await prisma.$transaction([
+      prisma.order.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: { select: { id: true, name: true, email: true } },
+          payments: {
+            select: { status: true, method: true },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+        },
+      }),
+      prisma.order.count({ where }),
+    ]);
+
+    return {
+      data: orders,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
   async cancelInternal(orderId: string, reason: string, changedBy: string | null) {
     return prisma.$transaction(async (tx) => {
       const order = await tx.order.findUniqueOrThrow({
@@ -216,7 +287,7 @@ export class OrderService {
             variantId: item.variantId,
             type: 'IN',
             quantity: item.quantity,
-            reason: `Devolução pro cancelamento do pedido #${orderId.slice(0, 8)}`,
+            reason: `Devolução por cancelamento do pedido #${orderId.slice(0, 8)}`,
           },
         });
       }
@@ -234,3 +305,5 @@ export class OrderService {
     });
   }
 }
+
+export const orderService = new OrderService();
