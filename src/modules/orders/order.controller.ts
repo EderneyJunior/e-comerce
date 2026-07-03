@@ -6,6 +6,7 @@ import {
   orderFilterSchema,
   updateOrderStatusSchema,
 } from './order.schema';
+import { z } from 'zod';
 
 export class OrderController {
   async checkout(req: Request, res: Response, next: NextFunction) {
@@ -79,6 +80,18 @@ export class OrderController {
       const data = updateOrderStatusSchema.parse(req.body);
       const { orderId } = req.params;
       const order = await orderService.updateStatus(String(orderId), data, userId);
+      res.json({ status: 'success', data: order });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async refund(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.id;
+      const { orderId } = req.params;
+      const { reason } = z.object({ reason: z.string().max(300).optional() }).parse(req.body);
+      const order = await orderService.refundOrder(String(orderId), userId, reason);
       res.json({ status: 'success', data: order });
     } catch (error) {
       next(error);

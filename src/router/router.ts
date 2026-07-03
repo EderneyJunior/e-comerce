@@ -5,6 +5,8 @@ import { productRouter } from '#modules/products/product.routes';
 import { cartRouter } from '#modules/cart/cart.routes';
 import { wishlistRoutes } from '#modules/wishlist/wishlist.routes';
 import { reviewRoutes } from '#modules/reviews/review.routes';
+import { paymentRouter } from '#modules/payments/payment.routes';
+import { orderAdminRouter, orderRouter } from '#modules/orders/order.routes';
 import swaggerui from 'swagger-ui-express';
 import { swaggerSpec } from '#config/swagger.js';
 
@@ -20,6 +22,9 @@ router.use('/api/v1', productRouter);
 router.use('/api/v1/cart', cartRouter);
 router.use('/api/v1/wishlist', wishlistRoutes);
 router.use('/api/v1', reviewRoutes);
+router.use('/api/v1/orders', orderRouter);
+router.use('/api/v1/admin/orders', orderAdminRouter);
+router.use('/api/v1/payments', paymentRouter);
 
 router.use('/api/docs', swaggerui.serve, swaggerui.setup(swaggerSpec));
 

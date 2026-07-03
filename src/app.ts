@@ -19,6 +19,7 @@ app.use(
   }),
 );
 app.use(morgan('combined'));
+app.use('/api/v1/webhook/stripe', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use('/uploads', express.static(path.resolve('uploads')));
 

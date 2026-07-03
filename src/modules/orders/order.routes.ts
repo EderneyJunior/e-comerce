@@ -18,5 +18,6 @@ adminRouter.use(authorize(Role.ADMIN));
 adminRouter.get('/', orderController.adminlist);
 adminRouter.get('/:orderId', orderController.adminshow);
 adminRouter.patch('/:orderId/status', orderController.updateStatus);
+adminRouter.post('/:orderId/refund', orderController.refund);
 
 export { router as orderRouter, adminRouter as orderAdminRouter };

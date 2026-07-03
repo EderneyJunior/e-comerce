@@ -42,6 +42,38 @@ const options: swaggerJsdoc.Options = {
             refreshToken: { type: 'string' },
           },
         },
+        Order: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            status: {
+              type: 'string',
+              enum: [
+                'PENDING',
+                'PAYMENT_CONFIRMED',
+                'PROCESSING',
+                'SHIPPED',
+                'DELIVERED',
+                'CANCELLED',
+                'REFUNDED',
+              ],
+            },
+            subtotal: { type: 'number' },
+            discount: { type: 'number' },
+            shippingFee: { type: 'number' },
+            total: { type: 'number' },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        Payment: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            provider: { type: 'string', enum: ['STRIPE', 'MERCADOPAGO'] },
+            method: { type: 'string', enum: ['CREDIT_CARD', 'DEBIT_CARD', 'PIX', 'BOLETO'] },
+            status: { type: 'string', enum: ['PENDING', 'PAID', 'FAILED', 'REFUNDED', 'EXPIRED'] },
+          },
+        },
       },
     },
   },

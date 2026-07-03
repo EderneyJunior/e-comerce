@@ -8,6 +8,11 @@ const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 export async function cleanDatabase() {
+  await prisma.orderStatusHistory.deleteMany();
+  await prisma.payment.deleteMany();
+  await prisma.orderItem.deleteMany();
+  await prisma.orderCoupon.deleteMany();
+  await prisma.order.deleteMany();
   await prisma.reviewHelpful.deleteMany();
   await prisma.review.deleteMany();
   await prisma.wishlist.deleteMany();

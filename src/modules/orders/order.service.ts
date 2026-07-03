@@ -3,6 +3,8 @@ import { addMinutes } from 'date-fns';
 import { prisma } from '#config/prisma';
 import { NotFoundError, AppError, ForbiddenError } from '#shared/errors/appError';
 import type { CheckoutInput, UpdateOrderStatusInput, OrderFilterInput } from './order.schema';
+import { stripeClient } from '#shared/payments/stripe.client';
+import { mpPaymentApi } from '#shared/payments/mercadopago.client';
 
 const CANCELLABLE_STATUSES: OrderStatus[] = ['PENDING', 'PAYMENT_CONFIRMED', 'PROCESSING'];
 
@@ -299,6 +301,69 @@ export class OrderService {
 
       await tx.orderStatusHistory.create({
         data: { orderId, status: 'CANCELLED', note: reason, changedBy },
+      });
+
+      return updated;
+    });
+  }
+
+  async refundOrder(orderId: string, adminId: string, reason?: string) {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { payament: { where: { status: 'PAID' }, orderBy: { createdAt: 'desc' } } },
+    });
+    if (!order) throw new NotFoundError('Pedido não encontrado');
+
+    const payment = order.payament[0];
+    if (!payment)
+      throw new AppError('Não é possivel reembolsar um pedido sem pagamento aprovado', 400);
+
+    if (!['PAYMENT_CONFIRMED', 'PROCESSING', 'SHIPPED'].includes(order.status)) {
+      throw new AppError(`Não é possivel reembolsar um pedido com status "${order.status}"`, 400);
+    }
+
+    if (payment.provider === 'STRIPE') {
+      await stripeClient.refunds.create({ payment_intent: payment.externalId! });
+    }
+    if (payment.provider === 'MARCADOPAGO') {
+      await mpPaymentApi.create({ id: Number(payment.externalId) } as any);
+    }
+
+    return prisma.$transaction(async (tx) => {
+      await tx.payment.update({
+        where: { id: payment.id },
+        data: { status: 'REFUNDED', updatedAt: new Date() },
+      });
+
+      const items = await tx.orderItem.findMany({ where: { orderId } });
+      for (const item of items) {
+        await tx.productVariant.update({
+          where: { id: item.variantId },
+          data: { stock: { increment: item.quantity } },
+        });
+
+        await tx.stockMovement.create({
+          data: {
+            variantId: item.variantId,
+            type: 'IN',
+            quantity: item.quantity,
+            reason: `Devolução por reembolso do pedido #${orderId.slice(0, 8)}`,
+          },
+        });
+      }
+
+      const updated = await tx.order.update({
+        where: { id: orderId },
+        data: { status: 'REFUNDED' },
+      });
+
+      await tx.orderStatusHistory.create({
+        data: {
+          orderId,
+          status: 'REFUNDED',
+          note: reason ?? 'Reembolsado pelo administrador',
+          changedBy: adminId,
+        },
       });
 
       return updated;
