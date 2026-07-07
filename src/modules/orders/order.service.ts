@@ -73,7 +73,7 @@ export class OrderService {
           status: 'PENDING',
           subtotal: Number.parseFloat(subtotal.toFixed(2)),
           discount: Number.parseFloat(discount.toFixed(2)),
-          shippingFee,
+          shippingFree: shippingFee,
           total,
           shippingMethod: data.shippingMethod,
           couponId: cart.couponId,
@@ -190,7 +190,7 @@ export class OrderService {
       include: {
         items: true,
         address: true,
-        payments: { orderBy: { createdAt: 'desc' } },
+        payament: { orderBy: { createdAt: 'desc' } },
         statusHistory: { orderBy: { createdAt: 'asc' } },
         coupon: { select: { code: true } },
       },
