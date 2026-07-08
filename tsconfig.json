@@ -5,6 +5,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "strict": true,
+    "jsx": "react-jsx",
 
     "target": "es2023",
     "module": "esnext",

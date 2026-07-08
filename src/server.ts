@@ -4,6 +4,7 @@ import { prisma } from '#config/prisma';
 import { logger } from '#shared/utils/logger';
 import { startCleanupJob } from '#shared/utils/cleanup.job';
 import { startOrderExpirationJob } from '#shared/utils/order-experation.job';
+import { verifyMailerConnection } from '#config/mailer';
 import { env } from '#config/env';
 
 async function bootstrap() {
@@ -11,6 +12,7 @@ async function bootstrap() {
     await prisma.$connect();
     startCleanupJob();
     startOrderExpirationJob();
+    verifyMailerConnection();
     logger.info('PostgreSQL conectado com sucesso');
   } catch (err) {
     logger.error('Falha ao conectar no PostgreSQL', err);

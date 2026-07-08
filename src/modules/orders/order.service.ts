@@ -5,6 +5,7 @@ import { NotFoundError, AppError, ForbiddenError } from '#shared/errors/appError
 import type { CheckoutInput, UpdateOrderStatusInput, OrderFilterInput } from './order.schema';
 import { stripeClient } from '#shared/payments/stripe.client';
 import { mpPaymentApi } from '#shared/payments/mercadopago.client';
+import { emailService } from '#shared/email/email.service';
 
 const CANCELLABLE_STATUSES: OrderStatus[] = ['PENDING', 'PAYMENT_CONFIRMED', 'PROCESSING'];
 
@@ -223,7 +224,7 @@ export class OrderService {
     if (data.status === 'CANCELLED')
       return this.cancelInternal(orderId, data.note ?? 'Cancelado pelo administrador', adminId);
 
-    return prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const updated = await tx.order.update({
         where: { id: orderId },
         data: { status: data.status },
@@ -235,6 +236,24 @@ export class OrderService {
 
       return updated;
     });
+
+    if (data.status === 'SHIPPED') {
+      const orderDetails = await prisma.order.findUnique({
+        where: { id: orderId },
+        include: { user: { select: { name: true, email: true } } },
+      });
+
+      if (orderDetails) {
+        await emailService.sendOrderShipped(orderDetails.user.email, {
+          customerName: orderDetails.user.name,
+          orderId: orderDetails.id,
+          shippingMethod: orderDetails.shippingMethod ?? 'Padrao',
+          trackingCode: data.note ?? undefined,
+        });
+      }
+    }
+
+    return result;
   }
 
   async listAllOrders(filters: OrderFilterInput) {

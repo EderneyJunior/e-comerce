@@ -2,6 +2,7 @@ import { stripeClient } from '#shared/payments/stripe.client';
 import { prisma } from '#config/prisma';
 import { env } from '#config/env';
 import { NotFoundError, ForbiddenError, AppError } from '#shared/errors/appError';
+import { sendOrderConfirmedEmail } from '#shared/email/send-order-email';
 
 export class StripeService {
   async createCheckout(orderId: string, userId: string) {
@@ -84,7 +85,7 @@ export class StripeService {
         },
       }),
     ]);
-    //Envio de email
+    await sendOrderConfirmedEmail(payment.orderId);
   }
 
   async handlePaymentFailed(intent: any) {

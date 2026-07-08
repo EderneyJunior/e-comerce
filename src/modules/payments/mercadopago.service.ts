@@ -1,6 +1,7 @@
 import { mpPaymentApi } from '#shared/payments/mercadopago.client';
 import { prisma } from '#config/prisma';
 import { NotFoundError } from '#shared/errors/appError';
+import { sendOrderConfirmedEmail } from '#shared/email/send-order-email';
 
 export class MercadoPagoService {
   async createCheckout(orderId: string, userId: string, method: 'PIX' | 'BOLETO') {
@@ -78,6 +79,8 @@ export class MercadoPagoService {
           },
         }),
       ]);
+
+      await sendOrderConfirmedEmail(payment.orderId);
     }
 
     if (['rejected', 'cancelled'].includes(mpPayment.status ?? '')) {

@@ -3,6 +3,7 @@ import { prisma } from '#config/prisma';
 import { NotFoundError, ConflictError, AppError } from '#shared/errors/appError';
 import { uniqueProductSlug } from '#shared/utils/slug';
 import { storageService } from '#shared/storage';
+import { emailService } from '#shared/email/email.service';
 import type {
   CreateProductInput,
   UpdateProductInput,
@@ -362,7 +363,31 @@ export class ProductService {
     ]);
 
     if (newStock <= variant.stockMin && newStock > 0) {
-      // Disparar notificação de estoque baixo
+      const admins = await prisma.user.findMany({
+        where: { role: 'ADMIN', isActive: true },
+        select: { email: true },
+      });
+
+      const productDetails = await prisma.productVariant.findUnique({
+        where: { id: variantId },
+        include: { product: { select: { name: true } } },
+      });
+
+      if (productDetails && admins.length > 0) {
+        const alertItems = [
+          {
+            productName: productDetails.product.name,
+            variantName: productDetails.name,
+            sku: productDetails.sku,
+            stock: newStock,
+            stockMin: variant.stockMin,
+          },
+        ];
+
+        for (const admin of admins) {
+          await emailService.sendLowStockAlert(admin.email, alertItems);
+        }
+      }
     }
 
     return updatedVariant;

@@ -10,6 +10,7 @@ import type {
   ResetPassword,
 } from '#modules/auth/auth.schema';
 import { UnauthorizedError, ConflictError, AppError } from '#shared/errors/appError';
+import { emailService } from '#shared/email/email.service';
 
 const BCRYPT_SALT_ROUNDS = 10;
 const REFRESH_TOKEN_TTL_DAYS = 7;
@@ -43,6 +44,8 @@ export class AuthService {
     }
 
     const { accessToken, refreshToken } = await this.createTokenPair(user.id, user.role);
+
+    await emailService.sendWelcome(user.email, user.name);
 
     return { user, accessToken, refreshToken };
   }
@@ -138,6 +141,9 @@ export class AuthService {
     await prisma.passwordResetToken.create({
       data: { userId: user.id, token, expiresAt },
     });
+
+    await emailService.sendPasswordReset(user.email, user.name, token);
+
     return token;
   }
 

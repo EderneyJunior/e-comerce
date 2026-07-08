@@ -29,6 +29,13 @@ const envSchema = z.object({
   MP_ACCESS_TOKEN: z.string().min(1, 'MP_ACCESS_TOKEN é obrigatória'),
   MP_WEBHOOK_SECRET: z.string().optional(),
   ORDER_PAYMENT_TIMEOUT_MINUTES: z.coerce.number().default(30),
+  SMTP_HOST: z.string().default('sandbox.smtp.mailtrap.io'),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  EMAIL_FROM: z.string().default('noreply@ecommerce.com'),
+  EMAIL_ENABLED: z.coerce.boolean().default(true),
+  FRONTEND_URL: z.url().default('http://localhost:5173'),
 });
 
 const parsed = envSchema.safeParse(process.env);
