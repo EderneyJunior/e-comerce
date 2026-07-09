@@ -4,7 +4,7 @@ import { prisma } from '#config/prisma';
 import { logger } from '#shared/utils/logger';
 import { startCleanupJob } from '#shared/utils/cleanup.job';
 import { startOrderExpirationJob } from '#shared/utils/order-experation.job';
-import { startStockAlertJob } from '#shared/jobs/stock-alert.job';
+import { startStockAlertJob } from '#shared/utils/stock-alert.job.js';
 import { verifyMailerConnection } from '#config/mailer';
 import { env } from '#config/env';
 
