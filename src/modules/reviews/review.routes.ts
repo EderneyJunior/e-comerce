@@ -74,7 +74,7 @@ router.delete(
 );
 
 router.post(
-  '/reviews/:id/helpful',
+  '/reviews/:reviewId/helpful',
   authenticate,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
